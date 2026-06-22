@@ -38,7 +38,7 @@ class Node:
     """
     def __init__(
         self,
-        feature_index=None,
+        feature_inmilihdex=None,
         threshold=None,
         left=None,
         right=None,
@@ -101,24 +101,6 @@ def hitung_information_gain(
     y_kiri:   np.ndarray,
     y_kanan:  np.ndarray,
 ) -> float:
-    """
-    Menghitung Information Gain setelah melakukan satu split.
-
-    Rumus:
-        IG = H(parent) - [ (|kiri|/|parent|) * H(kiri)
-                         + (|kanan|/|parent|) * H(kanan) ]
-
-    Semakin besar IG, semakin baik split tersebut dalam
-    memisahkan kelas-kelas yang berbeda.
-
-    Parameter:
-        y_parent : label sampel sebelum split (simpul induk)
-        y_kiri   : label sampel anak kiri  (nilai <= threshold)
-        y_kanan  : label sampel anak kanan (nilai >  threshold)
-
-    Return:
-        float : nilai information gain
-    """
     n  = len(y_parent)
     nL = len(y_kiri)
     nR = len(y_kanan)
@@ -223,30 +205,6 @@ def bangun_pohon(
     max_depth:  int = 5,
     min_sampel: int = 2,
 ) -> Node:
-    """
-    Membangun pohon keputusan secara rekursif (algoritma ID3/CART sederhana).
-
-    Strategi Divide-and-Conquer:
-        1. Cari split terbaik (fitur + threshold) berdasarkan IG
-        2. Bagi dataset menjadi dua subset (kiri dan kanan)
-        3. Rekursif bangun subtree untuk masing-masing subset
-        4. Berhenti jika kondisi penghentian terpenuhi
-
-    Kondisi berhenti (base case):
-        a. Kedalaman sudah mencapai max_depth
-        b. Semua sampel di node ini berasal dari satu kelas (entropy = 0)
-        c. Jumlah sampel di bawah min_sampel
-
-    Parameter:
-        X          : matriks fitur (n_sampel x n_fitur)
-        y          : array label kelas (n_sampel,)
-        kedalaman  : kedalaman node saat ini dalam pohon
-        max_depth  : batas maksimum kedalaman pohon
-        min_sampel : jumlah minimum sampel agar node bisa di-split
-
-    Return:
-        Node -- simpul hasil (internal node atau leaf node)
-    """
     n_sampel = len(y)
     n_kelas  = len(np.unique(y))
 
@@ -290,24 +248,6 @@ def bangun_pohon(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def prediksi_satu(node: Node, x: np.ndarray) -> int:
-    """
-    Memprediksi kelas untuk SATU sampel dengan cara menelusuri pohon
-    dari root hingga leaf.
-
-    Cara kerja:
-        - Jika node adalah leaf -> kembalikan nilai prediksi
-        - Jika nilai fitur[node.feature_index] <= threshold
-          -> telusuri anak kiri
-        - Jika nilai fitur[node.feature_index] >  threshold
-          -> telusuri anak kanan
-
-    Parameter:
-        node : simpul awal penelusuran (biasanya root)
-        x    : satu vektor fitur, shape (n_fitur,)
-
-    Return:
-        int : label kelas prediksi
-    """
     # Base case: sudah mencapai leaf node
     if node.is_leaf():
         return node.value
@@ -320,16 +260,6 @@ def prediksi_satu(node: Node, x: np.ndarray) -> int:
 
 
 def prediksi(pohon: Node, X: np.ndarray) -> np.ndarray:
-    """
-    Memprediksi kelas untuk BANYAK sampel sekaligus.
-
-    Parameter:
-        pohon : simpul akar pohon keputusan
-        X     : matriks fitur, shape (n_sampel, n_fitur)
-
-    Return:
-        numpy array shape (n_sampel,) berisi label kelas prediksi
-    """
     # Terapkan prediksi_satu ke setiap baris (sampel) dalam X
     return np.array([prediksi_satu(pohon, baris) for baris in X])
 
@@ -344,23 +274,6 @@ def hitung_feature_importance(
     importance: np.ndarray = None,
     bobot:      float = 1.0,
 ) -> np.ndarray:
-    """
-    Menghitung feature importance berdasarkan akumulasi Information Gain
-    yang dikontribusikan setiap fitur di seluruh node pohon.
-
-    Setiap node internal berkontribusi:
-        importance[fi] += bobot_node * info_gain_node
-    dimana bobot_node dihitung secara rekursif (dikecilkan tiap level).
-
-    Parameter:
-        node       : simpul pohon yang sedang diproses
-        n_fitur    : jumlah total fitur
-        importance : array akumulasi (diinisialisasi otomatis pada root)
-        bobot      : bobot kontribusi node ini (dikurangi x0.5 tiap level)
-
-    Return:
-        numpy array shape (n_fitur,) dinormalisasi sehingga total = 1.0
-    """
     # Inisialisasi array importance pada pemanggilan pertama (root)
     if importance is None:
         importance = np.zeros(n_fitur)
@@ -399,10 +312,6 @@ def tampilkan_pohon(
     kedalaman:     int  = 0,
 ):
     """
-    Menampilkan struktur pohon keputusan dalam format teks hierarkis.
-    Hanya menampilkan hingga batas_depth level dari root.
-
-    Parameter:
         node          : simpul yang sedang ditampilkan
         feature_names : daftar nama kolom fitur
         class_names   : daftar nama kelas target

@@ -46,9 +46,6 @@ DATASET_PATH  = r"dataset\student_dataset_10000_rows.csv"
 OUTPUT_DIR    = "./output"      # direktori penyimpanan file PNG
 
 # Parameter Decision Tree
-# Nilai optimal dipilih berdasarkan hasil grid search (parameter_testing.py):
-#   Eksperimen menguji depth [1,2,3,4,5,6,8,10,12,15] x min_sampel [2,5,10,20,50,100]
-#   Kombinasi depth=10, min_sampel=20 menghasilkan F1 macro tertinggi (0.7680)
 MAX_DEPTH     = 10   # kedalaman maksimum pohon (optimal: lebih dalam = lebih ekspresif)
 MIN_SAMPEL    = 20   # minimum sampel per node (optimal: mencegah split noise)
 MAX_THRESHOLD = 20   # kandidat threshold per fitur (optimasi kecepatan)

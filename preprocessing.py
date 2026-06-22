@@ -15,9 +15,6 @@ from collections import Counter
 
 def load_and_preprocess(filepath: str, test_size: float = 0.2, random_state: int = 42):
     """
-    Memuat dan memproses dataset dari file CSV.
-
-    Langkah-langkah:
         1.1  Baca file CSV dengan pandas
         1.2  Tampilkan 5 baris pertama sebagai gambaran awal
         1.3  Periksa dan tangani missing values
@@ -25,17 +22,6 @@ def load_and_preprocess(filepath: str, test_size: float = 0.2, random_state: int
         1.5  Hapus kolom yang menyebabkan data leakage (exam_score)
         1.6  Pisahkan fitur (X) dan target (y)
         1.7  Split manual 80:20 tanpa sklearn.train_test_split
-
-    Parameter:
-        filepath     : path ke file CSV
-        test_size    : proporsi data uji (default 0.2 = 20%)
-        random_state : seed agar hasil acak bisa direproduksi
-
-    Return:
-        X_train, X_test  : matriks fitur training dan testing (numpy array)
-        y_train, y_test  : array label training dan testing (numpy array)
-        feature_names    : daftar nama kolom fitur yang digunakan
-        class_names      : daftar nama kelas target
     """
     print("=" * 65)
     print("  MEMUAT DAN MEMPROSES DATASET")
@@ -67,8 +53,6 @@ def load_and_preprocess(filepath: str, test_size: float = 0.2, random_state: int
                     print(f"    -> Kolom '{col}' diisi dengan nilai modus.")
 
     # ── 1.4  Encoding label target ────────────────────────────────────────
-    # Kolom placement_status bernilai string ("Placed"/"Not Placed").
-    # Konversi ke integer agar bisa diproses secara numerik oleh Decision Tree.
     target_col  = "placement_status"
     class_names = sorted(df[target_col].unique())   # ['Not Placed', 'Placed']
     label_map   = {cls: idx for idx, cls in enumerate(class_names)}
@@ -76,11 +60,6 @@ def load_and_preprocess(filepath: str, test_size: float = 0.2, random_state: int
     print(f"\n[OK] Encoding label target : {label_map}")
 
     # ── 1.5  Hapus kolom yang menyebabkan data leakage ───────────────────
-    # Kolom exam_score dihapus karena secara logis nilai ujian tidak bisa
-    # digunakan untuk memprediksi placement_status — placement ditentukan
-    # sebelum atau bersamaan dengan exam score, sehingga menggunakannya
-    # sebagai fitur prediksi akan menghasilkan model yang tidak realistis
-    # (data leakage -> akurasi 100%).
     KOLOM_DIHAPUS = ["exam_score"]
     df = df.drop(columns=KOLOM_DIHAPUS, errors="ignore")
     print(f"[OK] Kolom dihapus (data leakage) : {KOLOM_DIHAPUS}")
